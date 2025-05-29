@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ appName }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(45deg, #2196F3, #21CBF3);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            margin: 20px 0;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .upload-area:hover {
+            border-color: #2196F3;
+            background-color: #f8f9ff;
+        }
+        
+        .upload-area.dragover {
+            border-color: #2196F3;
+            background-color: #e3f2fd;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .predict-btn {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .predict-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .burn-classification {
+            border-left: 5px solid;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .severity-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .emergency-alert {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .emergency-alert h3 {
+            color: #c62828;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+        
+        .section {
+            margin: 20px 0;
+        }
+        
+        .section h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .section ul {
+            list-style-position: inside;
+            line-height: 1.6;
+        }
+        
+        .section li {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        
+        .disclaimer {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .confidence {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #666;
+            margin: 10px 0;
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .upload-section {
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔥 AI Burn Classifier</h1>
+            <p>Advanced AI-powered burn classification and treatment guidance</p>
+        </div>
+        
+        <div class="upload-section">
+            <form action="/predict" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <div>
+                        <h3>📷 Upload Burn Image</h3>
+                        <p>Click to select or drag and drop an image</p>
+                        <input type="file" name="fileup" accept="image/*" class="file-input" id="fileInput" required>
+                        <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            Choose Image
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="filePreview" style="display: none; margin: 20px 0;">
+                    <img id="previewImg" style="max-width: 300px; max-height: 300px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+                    <p id="fileName" style="margin-top: 10px; color: #666;"></p>
+                </div>
+                
+                <button type="submit" class="predict-btn">🔍 Analyze Burn</button>
+            </form>
+            
+            {% if error %}
+            <div class="error">
+                <strong>Error:</strong> {{ error }}
+            </div>
+            {% endif %}
+            
+            {% if prediction and not burn_info %}
+            <div class="success">
+                {{ prediction }}
+                {% if message %}
+                <br><br>{{ message }}
+                {% endif %}
+            </div>
+            {% endif %}
+            
+            {% if burn_info %}
+            <div class="result-section">
+                <div class="burn-classification" style="border-left-color: {{ burn_info.color }};">
+                    <div class="severity-badge" style="background-color: {{ burn_info.color }};">
+                        {{ burn_info.severity }}
+                    </div>
+                    
+                    <h3>Classification: {{ burn_info.classification }}</h3>
+                    <div class="confidence">Confidence: {{ burn_info.confidence }}</div>
+                    
+                    {% if burn_info.classification == 'Third Degree burn' %}
+                    <div class="emergency-alert">
+                        <h3>⚠️ MEDICAL EMERGENCY ⚠️</h3>
+                        <p><strong>CALL 911 IMMEDIATELY</strong></p>
+                        <p>Third-degree burns require immediate emergency medical attention</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="section">
+                        <h4>📋 Description</h4>
+                        <p>{{ burn_info.description }}</p>
+                    </div>
+                    
+                    <div class="section">
+                        <h4>🔍 Symptoms</h4>
+                        <ul>
+                            {% for symptom in burn_info.symptoms %}
+                            <li>{{ symptom }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="section">
+                        <h4>🩹 Treatment Recommendations</h4>
+                        <ul>
+                            {% for treatment in burn_info.treatment %}
+                            <li>{{ treatment }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="section">
+                        <h4>⏱️ Expected Healing Time</h4>
+                        <p>{{ burn_info.healing_time }}</p>
+                    </div>
+                    
+                    <div class="section">
+                        <h4>🏥 When to Seek Medical Help</h4>
+                        <p><strong>{{ burn_info.when_to_seek_help }}</strong></p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="disclaimer">
+                <strong>⚠️ Medical Disclaimer:</strong><br>
+                This AI tool is for educational and informational purposes only. It should not replace professional medical advice, diagnosis, or treatment. Always consult qualified healthcare professionals for proper medical care. In case of severe burns or medical emergencies, call emergency services immediately.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const filePreview = document.getElementById('filePreview');
+        const previewImg = document.getElementById('previewImg');
+        const fileName = document.getElementById('fileName');
+        
+        // File input change event
+        fileInput.addEventListener('change', function(e) {
+            handleFile(e.target.files[0]);
+        });
+        
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFile(files[0]);
+            }
+        });
+        
+        function handleFile(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    fileName.textContent = file.name;
+                    filePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Form submission handling
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            const submitBtn = document.querySelector('.predict-btn');
+            submitBtn.textContent = '🔄 Analyzing...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>
