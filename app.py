@@ -101,7 +101,7 @@ except Exception as e:
     interpreter = None
 
 classes = ['First Degree burn', 'Second Degree burn', 'Third Degree burn']
-thresholds = [Decimal('0.99996'), Decimal('0.999'), Decimal('0.999')]
+thresholds = [Decimal('0.85'), Decimal('0.85'), Decimal('0.85')]
 
 def model_predict(image_arr):
     """Make prediction using the loaded model"""
