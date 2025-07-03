@@ -66,7 +66,7 @@ BURN_INFO = {
             'Swelling in surrounding areas'
         ],
         'treatment': [
-            'CALL EMERGENCY SERVICES IMMEDIATELY (911)',
+            'CALL EMERGENCY SERVICES IMMEDIATELY (123)',
             'Do NOT remove clothing stuck to burn',
             'Do NOT apply water to large third-degree burns',
             'Cover with clean, dry cloth or sterile bandage',
